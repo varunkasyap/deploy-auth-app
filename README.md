@@ -1,7 +1,7 @@
 
 # User Registration System
 
-deployed at https://deploy-auth-app-ui-pearl.vercel.app/login
+deployed at https://deploy-auth-app-ui-pearl.vercel.app/
 <br> 
 Email: test@gmail.com
 <br>
