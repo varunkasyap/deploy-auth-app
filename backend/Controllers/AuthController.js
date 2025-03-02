@@ -1,6 +1,7 @@
 const userModel = require('../Models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 const signup = async (req, res) => {
     try {
@@ -51,4 +52,53 @@ const login = async (req, res) => {
     }
 }
 
-module.exports = { signup, login };
+
+const updateUser = async (req, res) => {
+    try {
+        const { userId, name, email, age, dateOfBirth, password, gender, about } = req.body;
+        const user = await userModel.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found', success: false });
+        }
+
+        if (password) {
+            user.password = await bcrypt.hash(password, 10);
+        }
+
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.age = age || user.age;
+        user.dateOfBirth = dateOfBirth || user.dateOfBirth;
+        user.gender = gender || user.gender;
+        user.about = about || user.about;
+
+        await user.save();
+
+        res.status(200).json({ message: 'User updated successfully', success: true });
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error', success: false, error: err });
+    }
+}
+
+const deleteUser = async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid userId format', success: false });
+        }
+        const deletedUser = await userModel.findByIdAndDelete(userId);
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found', success: false });
+        }
+
+        res.status(200).json({ message: 'User deleted successfully', success: true });
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error', success: false, error: err.message || err });
+    }
+}
+
+
+module.exports = { signup, login, updateUser, deleteUser };
